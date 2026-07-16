@@ -158,8 +158,7 @@ const headers = await readFile(path.join(dist, '_headers'), 'utf8');
 for (const header of ['Content-Security-Policy', 'X-Frame-Options', 'X-Content-Type-Options', 'Referrer-Policy', 'Permissions-Policy', 'Strict-Transport-Security']) {
   if (!headers.includes(header)) errors.push(`dist/_headers: missing ${header}`);
 }
-if (!contactHtml.includes('action="/api/contact"')) errors.push('contact/index.html: form must post to the Cloudflare Pages Function');
-try { await access(path.join(root, 'functions', 'api', 'contact.js')); } catch { errors.push('functions/api/contact.js: Cloudflare Pages contact handler is missing'); }
+if (!contactHtml.includes('action="/api/contact"')) errors.push('contact/index.html: form must post to the Cloudflare Worker contact endpoint');
 try {
   const envExample = await readFile(path.join(root, '.env.example'), 'utf8');
   for (const variable of ['RESEND_API_KEY=', 'CONTACT_FROM=', 'CONTACT_TO=']) {
@@ -208,6 +207,8 @@ try {
   if (!worker.includes("endsWith('.workers.dev')") || !worker.includes('X-Robots-Tag')) errors.push('worker/index.js: preview no-index protection is missing');
   if (!worker.includes('status: 301')) errors.push('worker/index.js: permanent trailing-slash redirect upgrade is missing');
   if (!worker.includes('max-age=31536000, immutable') || !worker.includes('max-age=0, must-revalidate')) errors.push('worker/index.js: exact cache policies are missing');
+  if (!worker.includes("url.pathname === '/api/contact'") || !worker.includes('RESEND_API_KEY')) errors.push('worker/index.js: contact endpoint is missing');
+  if (!worker.includes("Allow: 'POST'") || !worker.includes("status: 405")) errors.push('worker/index.js: contact endpoint method guard is missing');
 } catch { errors.push('Cloudflare Worker deployment configuration is missing'); }
 
 if (errors.length) {

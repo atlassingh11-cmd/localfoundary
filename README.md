@@ -21,8 +21,7 @@ Open `http://127.0.0.1:4173/` after starting the local server.
 - `src/templates.mjs` — reusable page, navigation, footer, project, pricing and form components.
 - `src/styles.css` — design tokens, responsive layouts and motion system.
 - `src/site.js` — navigation, focus handling, scroll storytelling, reveals, validation and conversion-event hooks.
-- `worker/index.js` — Cloudflare Worker for static delivery, permanent redirects, cache policy and preview no-index protection.
-- `functions/api/contact.js` — reserved enquiry handler; not active until the owner configures and tests Resend.
+- `worker/index.js` — Cloudflare Worker for static delivery, the enquiry API, permanent redirects, cache policy and preview no-index protection.
 - `scripts/build.mjs` — generates production routes, sitemap, robots, manifest, redirects and security headers.
 - `scripts/check.mjs` — validates metadata, canonicals, structured data, headings, links, assets and launch configuration.
 - `dist/` — generated Cloudflare static output.
@@ -39,7 +38,7 @@ Open `http://127.0.0.1:4173/` after starting the local server.
 
 The Worker serves a branded 404 response, converts Cloudflare’s automatic trailing-slash redirect to a permanent 301, applies exact HTML/asset cache policies and adds `X-Robots-Tag: noindex, nofollow` only on `*.workers.dev` preview hosts. Canonical, Open Graph and sitemap URLs intentionally remain on `https://www.localfoundary.co.uk` until the domain cutover.
 
-The contact backend is intentionally deferred. Before enabling it, configure and test these Cloudflare secrets:
+The contact handler is included in the Worker. Email delivery remains inactive until these Cloudflare secrets are configured and tested:
 
 Use [`.env.example`](./.env.example) as the variable checklist; never commit the populated values.
 

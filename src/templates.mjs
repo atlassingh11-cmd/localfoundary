@@ -539,7 +539,7 @@ const selectedWork = () => `
       <div class="portfolio-grid">
         ${projects.filter((project) => project.published).map((project, index) => `
           <article class="portfolio-card reveal" data-reveal>
-            <a class="portfolio-card-link" href="/work/${project.slug}/" aria-label="View full story: ${project.name} case study">
+            <a class="portfolio-card-link" href="/work/${project.slug}/">
               <div class="portfolio-card-media">
                 <picture><source type="image/webp" srcset="${compactWebpPath(project.desktopImage)} 800w, ${webpPath(project.desktopImage)} ${project.desktopWidth}w" sizes="(max-width: 800px) 92vw, 720px"><img class="portfolio-card-desktop" src="${project.desktopImage}" alt="${project.name} website homepage" width="${project.desktopWidth}" height="${project.desktopHeight}" loading="lazy"></picture>
                 <span class="portfolio-card-index">0${index + 1}</span>
