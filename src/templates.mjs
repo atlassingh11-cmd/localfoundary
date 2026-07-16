@@ -17,6 +17,39 @@ const whatsappIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.4
 const cleanPath = (path = '/') => (path === '/' ? '/' : `/${path.replace(/^\/+|\/+$/g, '')}/`);
 const canonical = (path) => `${site.url}${cleanPath(path)}`;
 const getProject = (slug) => projects.find((project) => project.slug === slug);
+const webpPath = (imagePath) => imagePath.replace(/\.(?:jpe?g|png)$/i, '.webp');
+const compactWebpPath = (imagePath) => imagePath.replace(/\.(?:jpe?g|png)$/i, '-800.webp');
+
+const caseStudyHeadings = {
+  'iffy-khan': {
+    overview: 'Property expertise, made personal.',
+    delivery: 'Credibility, property guidance and a direct route to enquire.',
+    responsive: 'A premium property experience across every screen.',
+  },
+  'ste-hamilton-fitness': {
+    overview: 'A coaching offer with energy and structure.',
+    delivery: 'Services, transformation proof and stronger enquiry journeys.',
+    responsive: 'Coaching momentum that carries from desktop to mobile.',
+  },
+  'pat-barrett': {
+    overview: 'A boxing legacy shaped for the next chapter.',
+    delivery: 'Career, media, appearances and events in one experience.',
+    responsive: 'A bold editorial story composed for every screen.',
+  },
+};
+
+const serviceCtaCopy = {
+  'digital-strategy': 'Share the decisions competing for attention and the evidence already available. We’ll identify the most valuable place to begin.',
+  'website-design': 'Tell us what the current website no longer communicates or supports. We’ll outline the right design and delivery scope.',
+  ecommerce: 'Describe the catalogue, buying journey and operational constraints. We’ll respond with the most sensible commerce starting point.',
+  branding: 'Share what feels inconsistent or hard to recognise today. We’ll explain where positioning, messaging or identity can create the greatest change.',
+  'local-seo': 'Tell us what you need from SEO & search visibility, the locations or markets that matter and what a valuable search visit should lead to.',
+  'google-business-profile': 'Tell us what you need from Google Business Profile optimisation and whether you already control the listing. We’ll explain the next practical step.',
+  'landing-pages-lead-generation': 'Share the campaign, audience and action you need. We’ll recommend a focused page and qualification approach.',
+  'copy-content': 'Show us where customers lose the thread or where expertise is difficult to express. We’ll suggest a focused content scope.',
+  'hosting-support': 'Tell us how the website is hosted, what needs maintaining and where responsibilities are unclear. We’ll set out an appropriate support route.',
+  'digital-growth': 'Share the growth priorities and the activity already under way. We’ll identify where a connected plan can remove the most friction.',
+};
 
 const serviceGuidance = {
   'digital-strategy': {
@@ -46,7 +79,7 @@ const serviceGuidance = {
   'local-seo': {
     for: 'Useful when relevant pages are difficult to discover, local and national intent are mixed together or technical and content foundations need a clear plan.',
     assess: 'Indexation, site structure, search demand, competitors, page quality, internal links, local signals, structured data and available measurement access.',
-    success: 'Improved technical coverage, appropriate visibility, useful search visits and conversion events agreed before work begins—without guaranteeing rankings.',
+    success: 'Improved technical coverage, appropriate visibility, useful search visits and conversion events agreed before work begins — without guaranteeing rankings.',
     scope: 'The proposal separates technical work, content work, local activity and any ongoing optimisation, and confirms reporting access and responsibilities.',
   },
   'google-business-profile': {
@@ -213,7 +246,7 @@ const hostingPriceSummary = () => `
   <section class="section hosting-price-summary">
     <div class="shell pricing-preview-grid">
       <div>${sectionHeading({ eyebrow: 'Care after launch', title: 'Choose the level of<br>ongoing support you need.', copy: 'Every website package includes two years of standard hosting. After that, choose a simple annual renewal or a monthly care plan with minor content updates.' })}<a class="text-link" href="/pricing/">See full pricing and terms ${arrow}</a></div>
-      <div class="support-price-options"><article><span>Annual renewal</span><b>£59 / year</b><p>Standard hosting, SSL and renewal of one eligible domain registration.</p></article><article><span>Care plan</span><b>£29 / month</b><p>Hosting, renewal and up to two minor content updates each month. Full cancellation and handover terms are agreed in writing.</p></article></div>
+      <div class="support-price-options"><article><span>Annual renewal</span><b>£59 / year</b><p>Standard hosting, SSL and renewal of one eligible domain registration.</p></article><article><span>Care plan</span><b>£29/month</b><p>Hosting, renewal and up to two minor content updates each month. Full cancellation and handover terms are agreed in writing.</p></article></div>
     </div>
   </section>`;
 
@@ -362,6 +395,7 @@ export const layout = ({
   includeCanonical = true,
   pageType = 'WebPage',
   ogType = 'website',
+  preloadAssets = [],
 }) => {
   const pageSchema = includeCanonical ? {
     '@context': 'https://schema.org',
@@ -400,12 +434,12 @@ export const layout = ({
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/styles.css?v=20260715a">
+  <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+  ${preloadAssets.map((asset) => `<link rel="preload" href="${asset.href}" as="image"${asset.type ? ` type="${asset.type}"` : ''}${asset.media ? ` media="${asset.media}"` : ''}>`).join('\n  ')}
+  <link rel="stylesheet" href="/assets/styles.css?v=20260716a">
   ${schemas.map((item) => `<script type="application/ld+json">${JSON.stringify(item)}</script>`).join('\n  ')}
-  <script src="/assets/site.js?v=20260715a" defer></script>
+  <script src="/assets/site.js?v=20260716a" defer></script>
 </head>
 <body class="intro-pending ${bodyClass}">
   ${pageLoader()}
@@ -434,8 +468,8 @@ const buttonRow = (primaryHref = '/contact/', secondaryHref = '/work/', primary 
 };
 
 const heroSystem = () => `
-  <div class="hero-system" data-parallax data-scroll-stage="1" aria-label="Scroll-linked illustration showing brand, website, Google presence, reviews and an enquiry working together">
-    <div class="system-label" aria-live="polite">
+  <div class="hero-system" data-parallax data-scroll-stage="1" role="img" aria-label="Scroll-linked illustration showing brand, website, search visibility, reviews and an enquiry working together">
+    <div class="system-label">
       <span>How it fits together</span>
       <b><i data-hero-stage-number>01</i><em data-hero-stage-label>Identity</em></b>
       <span class="hero-stage-track" aria-hidden="true"><i></i></span>
@@ -443,20 +477,20 @@ const heroSystem = () => `
     <div class="orbit orbit-one" aria-hidden="true"></div>
     <div class="orbit orbit-two" aria-hidden="true"></div>
     <div class="hero-browser" data-hero-card="2">
-      <div class="browser-bar"><i></i><i></i><i></i><span>google.com/search</span></div>
-      <div class="browser-page google-search-page">
-        <div class="google-wordmark" aria-hidden="true"><i>G</i><i>o</i><i>o</i><i>g</i><i>l</i><i>e</i></div>
-        <div class="google-search-field">
+      <div class="browser-bar"><i></i><i></i><i></i><span>search.local/query</span></div>
+      <div class="browser-page search-results-page">
+        <div class="search-platform-mark" aria-hidden="true"><i></i><span>Search</span></div>
+        <div class="search-query-field">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
           <span>website strategy and design</span>
           <b aria-hidden="true"></b>
         </div>
-        <div class="google-search-suggestions" aria-hidden="true">
+        <div class="search-suggestions" aria-hidden="true">
           <div><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><span><b>website design</b> for growing businesses</span></div>
           <div><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><span><b>brand strategy</b> and positioning</span></div>
           <div><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><span><b>technical SEO</b> and local visibility</span></div>
         </div>
-        <div class="google-search-footer" aria-hidden="true"><span>Strategy</span><span>Websites</span><span>Search</span></div>
+        <div class="search-filter-row" aria-hidden="true"><span>Strategy</span><span>Websites</span><span>Search</span></div>
       </div>
     </div>
     <div class="system-card card-identity" data-hero-card="1"><span>Identity</span><b>Aa</b><i></i><i></i><i></i></div>
@@ -470,12 +504,12 @@ const projectVisual = (project, extraClass = '') => {
   if (project.visual === 'screenshot') {
     const priority = extraClass.split(/\s+/).includes('case-visual');
     return `<div class="project-visual project-screenshot ${extraClass}">
-      <div class="desktop-device"><div class="device-bar"><i></i><i></i><i></i></div><img src="${project.desktopImage}" alt="${project.name} website desktop homepage" width="${project.desktopWidth}" height="${project.desktopHeight}" loading="${priority ? 'eager' : 'lazy'}" ${priority ? 'fetchpriority="high"' : ''}></div>
-      <div class="mobile-device"><img src="${project.mobileImage}" alt="${project.name} website mobile homepage" width="${project.mobileWidth}" height="${project.mobileHeight}" loading="${priority ? 'eager' : 'lazy'}"></div>
+      <div class="desktop-device"><div class="device-bar"><i></i><i></i><i></i></div><picture><source type="image/webp" srcset="${compactWebpPath(project.desktopImage)} 800w, ${webpPath(project.desktopImage)} ${project.desktopWidth}w" sizes="(max-width: 800px) 92vw, 960px"><img src="${project.desktopImage}" alt="${project.name} website desktop homepage" width="${project.desktopWidth}" height="${project.desktopHeight}" loading="${priority ? 'eager' : 'lazy'}" ${priority ? 'fetchpriority="high"' : ''}></picture></div>
+      <div class="mobile-device"><picture><source type="image/webp" srcset="${webpPath(project.mobileImage)}"><img src="${project.mobileImage}" alt="${project.name} website mobile homepage" width="${project.mobileWidth}" height="${project.mobileHeight}" loading="${priority ? 'eager' : 'lazy'}"></picture></div>
     </div>`;
   }
   const isFitness = project.visual === 'editorial-fitness';
-  return `<div class="project-visual project-editorial ${isFitness ? 'fitness' : 'property'} ${extraClass}" aria-label="Editorial project artwork for ${project.name}">
+  return `<div class="project-visual project-editorial ${isFitness ? 'fitness' : 'property'} ${extraClass}" role="img" aria-label="Editorial project artwork for ${project.name}">
     <div class="project-monogram">${isFitness ? 'SH' : 'IK'}</div>
     <div class="project-interface">
       <span>${project.industry}</span>
@@ -507,10 +541,10 @@ const selectedWork = () => `
           <article class="portfolio-card reveal" data-reveal>
             <a class="portfolio-card-link" href="/work/${project.slug}/" aria-label="View full story: ${project.name} case study">
               <div class="portfolio-card-media">
-                <img class="portfolio-card-desktop" src="${project.desktopImage}" alt="${project.name} website homepage" width="${project.desktopWidth}" height="${project.desktopHeight}" loading="lazy">
+                <picture><source type="image/webp" srcset="${compactWebpPath(project.desktopImage)} 800w, ${webpPath(project.desktopImage)} ${project.desktopWidth}w" sizes="(max-width: 800px) 92vw, 720px"><img class="portfolio-card-desktop" src="${project.desktopImage}" alt="${project.name} website homepage" width="${project.desktopWidth}" height="${project.desktopHeight}" loading="lazy"></picture>
                 <span class="portfolio-card-index">0${index + 1}</span>
                 <span class="portfolio-card-action">View full story ${arrow}</span>
-                <span class="portfolio-card-phone" aria-hidden="true"><img src="${project.mobileImage}" alt="" width="${project.mobileWidth}" height="${project.mobileHeight}" loading="lazy"></span>
+                <span class="portfolio-card-phone" aria-hidden="true"><picture><source type="image/webp" srcset="${webpPath(project.mobileImage)}"><img src="${project.mobileImage}" alt="" width="${project.mobileWidth}" height="${project.mobileHeight}" loading="lazy"></picture></span>
               </div>
               <div class="portfolio-card-copy">
                 <p>${project.industry}</p>
@@ -732,7 +766,7 @@ export const homePage = () => layout({
           </div>
           ${heroSystem()}
         </div>
-        <div class="shell trust-strip" aria-label="Local Foundary approach"><span>Strategy-led</span><span>Conversion-focused</span><span>Built to perform</span><span>Bespoke design</span><span>Long-term support</span></div>
+        <div class="shell trust-strip" role="group" aria-label="Local Foundary approach"><span>Strategy-led</span><span>Conversion-focused</span><span>Built to perform</span><span>Bespoke design</span><span>Long-term support</span></div>
       </div>
     </section>
     ${selectedWork()}
@@ -773,6 +807,7 @@ export const workPage = () => layout({
 
 export const caseStudyPage = (project) => {
   const related = projects[(projects.indexOf(project) + 1) % projects.length];
+  const headings = caseStudyHeadings[project.slug];
   const schema = {
     '@context': 'https://schema.org', '@type': 'CreativeWork', name: `${project.name} website project`, creator: { '@id': `${site.url}/#organization` }, about: project.industry, url: canonical(`/work/${project.slug}/`),
   };
@@ -780,13 +815,14 @@ export const caseStudyPage = (project) => {
     title: project.seoTitle,
     description: project.seoDescription,
     path: `/work/${project.slug}/`, active: 'work', schema: [schema], ogType: 'article',
+    preloadAssets: [{ href: compactWebpPath(project.desktopImage), type: 'image/webp', media: '(max-width: 800px)' }, { href: webpPath(project.desktopImage), type: 'image/webp', media: '(min-width: 801px)' }],
     breadcrumbs: [{ name: 'Home', path: '/' }, { name: 'Work', path: '/work/' }, { name: project.name, path: `/work/${project.slug}/` }],
     content: `
       <section class="case-hero"><div class="shell"><div class="case-kicker"><span>Case study</span><span>${project.industry}</span><span>${project.type}</span></div><h1>${project.headline}</h1>${projectVisual(project, 'case-visual image-visible')}</div></section>
-      <section class="section case-overview"><div class="shell case-overview-grid"><div>${sectionHeading({ eyebrow: 'Project overview', title: 'The brief, made visible.' })}</div><div><p class="lede">${project.summary}</p><dl><div><dt>Client</dt><dd>${project.name}</dd></div><div><dt>Industry</dt><dd>${project.industry}</dd></div><div><dt>Local Foundary role</dt><dd>${project.services.join(' · ')}</dd></div></dl>${project.assetStatus ? `<aside class="evidence-note"><b>Asset note</b><p>${project.assetStatus}</p></aside>` : ''}${project.liveUrl ? `<a class="button button-dark" target="_blank" rel="noopener noreferrer" href="${project.liveUrl}">Visit live website <span aria-hidden="true">↗</span></a>` : ''}</div></div></section>
+      <section class="section case-overview"><div class="shell case-overview-grid"><div>${sectionHeading({ eyebrow: 'Project overview', title: headings.overview })}</div><div><p class="lede">${project.summary}</p><dl><div><dt>Client</dt><dd>${project.name}</dd></div><div><dt>Industry</dt><dd>${project.industry}</dd></div><div><dt>Local Foundary role</dt><dd>${project.services.join(' · ')}</dd></div></dl>${project.assetStatus ? `<aside class="evidence-note"><b>Asset note</b><p>${project.assetStatus}</p></aside>` : ''}${project.liveUrl ? `<a class="button button-dark" target="_blank" rel="noopener noreferrer" href="${project.liveUrl}">Visit live website <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>` : ''}</div></div></section>
       <section class="section case-story"><div class="shell case-story-grid"><article><span>01</span><h2>The challenge</h2><p>${project.challenge}</p></article><article><span>02</span><h2>Strategy & creative direction</h2><p>${project.strategy}</p></article></div></section>
-      <section class="section case-delivery"><div class="shell"><div class="case-delivery-grid"><div>${sectionHeading({ eyebrow: 'What we delivered', title: 'Decisions, interfaces and useful journeys.' })}<p>The work shown here covers the agreed strategy, design and delivery scope. Measured outcomes will be added when client-approved data is available.</p></div><ul>${project.features.map((feature, index) => `<li><span>0${index + 1}</span><b>${feature}</b></li>`).join('')}</ul></div></div></section>
-      <section class="section case-devices"><div class="shell">${sectionHeading({ eyebrow: 'Responsive presentation', title: 'One idea, composed for every screen.' })}${projectVisual(project, 'case-visual-secondary')}</div></section>
+      <section class="section case-delivery"><div class="shell"><div class="case-delivery-grid"><div>${sectionHeading({ eyebrow: 'What we delivered', title: headings.delivery })}<p>The work shown here covers the agreed strategy, design and delivery scope. Measured outcomes will be added when client-approved data is available.</p></div><ul>${project.features.map((feature, index) => `<li><span>0${index + 1}</span><b>${feature}</b></li>`).join('')}</ul></div></div></section>
+      <section class="section case-devices"><div class="shell">${sectionHeading({ eyebrow: 'Responsive presentation', title: headings.responsive })}${projectVisual(project, 'case-visual-secondary')}</div></section>
       <section class="section related-project"><div class="shell related-inner"><div><p class="eyebrow">Next project</p><h2>${related.name}</h2><p>${related.summary}</p><a class="text-link" href="/work/${related.slug}/">View case study ${arrow}</a></div>${projectVisual(related)}</div></section>
       ${finalCta()}`,
   });
@@ -823,7 +859,7 @@ export const serviceDetailPage = (service) => {
       ${servicePrinciples(service)}
       ${service.slug === 'website-design' ? tradeServiceLinks() : ''}
       ${service.slug === 'hosting-support' ? hostingPriceSummary() : ''}
-      <section class="section related-work"><div class="shell related-work-grid"><div><p class="eyebrow">Related case study</p><h2>${related.name}</h2><p>${related.summary}</p><a class="text-link" href="/work/${related.slug}/">See how we approached the project ${arrow}</a></div>${projectVisual(related)}</div></section>${finalCta({ eyebrow: presentation.cta[0], title: presentation.cta[1], copy: `Tell us what you need from ${service.name.toLowerCase()}. We’ll reply by email or WhatsApp with a clear view of fit, scope and the most useful next step.` })}`,
+      <section class="section related-work"><div class="shell related-work-grid"><div><p class="eyebrow">Related case study</p><h2>${related.name}</h2><p>${related.summary}</p><a class="text-link" href="/work/${related.slug}/">See how we approached the project ${arrow}</a></div>${projectVisual(related)}</div></section>${finalCta({ eyebrow: presentation.cta[0], title: presentation.cta[1], copy: serviceCtaCopy[service.slug] })}`,
   });
 };
 
@@ -833,7 +869,7 @@ export const industriesPage = () => layout({
   path: '/industries/', active: 'industries',
   pageType: 'CollectionPage',
   breadcrumbs: [{ name: 'Home', path: '/' }, { name: 'Industries', path: '/industries/' }],
-  content: `${pageHero({ eyebrow: 'Industry-specific web design', title: 'Websites and digital growth,<br>tailored to your industry.', copy: 'Different markets create different questions, expectations and trust signals. We adapt the strategy, structure and design around how your customers actually choose.' })}${industryDirectory()}${tradeServiceLinks()}<section class="section dark-panel"><div class="shell statement-grid"><p class="eyebrow eyebrow-light">Do not see your industry?</p><h2>Start with how<br>your customers decide.</h2><p>Sector experience is useful, but thoughtful research and a clear commercial brief matter more than forcing your business into a pre-built category. Explore <a class="text-link text-link-light" href="/services/">all digital services</a> or tell us about your market.</p></div></section>${finalCta({ eyebrow: 'Built around your market', title: 'Need an industry-specific<br>website strategy?', copy: 'Tell us who you need to reach, what they must understand and what a useful next action looks like. We’ll shape the right starting point.' })}`,
+  content: `${pageHero({ eyebrow: 'Industry-specific web design', title: 'Websites and digital growth,<br>tailored to your industry.', copy: 'Different markets create different questions, expectations and trust signals. We adapt the strategy, structure and design around how your customers actually choose.' })}${industryDirectory()}${tradeServiceLinks()}<section class="section dark-panel"><div class="shell statement-grid"><p class="eyebrow eyebrow-light">Don’t see your industry?</p><h2>Start with how<br>your customers decide.</h2><p>Sector experience is useful, but thoughtful research and a clear commercial brief matter more than forcing your business into a pre-built category. Explore <a class="text-link text-link-light" href="/services/">all digital services</a> or tell us about your market.</p></div></section>${finalCta({ eyebrow: 'Built around your market', title: 'Need an industry-specific<br>website strategy?', copy: 'Tell us who you need to reach, what they must understand and what a useful next action looks like. We’ll shape the right starting point.' })}`,
 });
 
 export const industryDetailPage = (slug, industry) => layout({
@@ -859,15 +895,15 @@ const pricingCards = () => pricing.map((plan) => {
   const price = plan.price
     ? `<div class="plan-price"><span>From</span><b data-count="${plan.price.replace(/[^0-9]/g, '')}" data-count-prefix="£">${plan.price}</b><span>starting package price</span></div>`
     : `<div class="plan-price plan-price-tailored"><span>Pricing</span><b>${plan.priceLabel}</b><span>${plan.priceNote}</span></div>`;
-  return `<article class="pricing-card ${plan.featured ? 'featured' : ''}"><span class="pricing-badge ${plan.featured ? '' : 'pricing-badge-placeholder'}">Recommended starting point</span><p>${plan.kicker}</p><h2>${plan.name}</h2>${price}<p>${plan.description}</p><ul>${plan.features.map((feature) => `<li>${check}${feature}</li>`).join('')}</ul><a class="button ${plan.featured ? 'button-accent' : 'button-dark'}" href="/contact/">Discuss this package ${arrow}</a></article>`;
+  return `<article class="pricing-card ${plan.featured ? 'featured' : ''}"><span class="pricing-badge ${plan.featured ? '' : 'pricing-badge-placeholder'}"${plan.featured ? '' : ' aria-hidden="true"'}>${plan.featured ? 'Recommended starting point' : ''}</span><p>${plan.kicker}</p><h2>${plan.name}</h2>${price}<p>${plan.description}</p><ul>${plan.features.map((feature) => `<li>${check}${feature}</li>`).join('')}</ul><a class="button ${plan.featured ? 'button-accent' : 'button-dark'}" href="/contact/">Discuss this package ${arrow}</a></article>`;
 }).join('');
 
 const pricingFaqItems = [
   ['Are these prices fixed?', 'These are our current package starting prices. Scale is a tailored, negotiable proposal. Your final proposal will confirm the agreed scope, responsibilities, timetable and total fee.'],
   ['What is included for two years?', 'The current packages include two years of standard hosting and one eligible domain registration. Premium domains, paid software and specialist integrations are quoted separately. Annual renewal begins from year three unless the monthly care plan is chosen.'],
   ['Does the Scale package include unlimited pages?', 'No package includes unlimited future pages. Scale includes an expanded page scope agreed in the proposal. Additional pages or substantial new sections after that scope are quoted separately.'],
-  ['What is required after two years?', 'If the website remains hosted through Local Foundary, choose either the £59 annual renewal or the £29 monthly Care Plan from year three. The Care Plan already includes hosting and renewal.'],
-  ['What happens if I cancel the Care Plan?', 'The written agreement confirms the required notice period, final hosting date, domain control, included handover files and whether third-party migration work carries a separate fee.'],
+  ['What is required after two years?', 'If the website remains hosted through Local Foundary, choose either the £59 annual renewal or the £29 monthly care plan from year three. The care plan already includes hosting and renewal.'],
+  ['What happens if I cancel the care plan?', 'The written agreement confirms the required notice period, final hosting date, domain control, included handover files and whether third-party migration work carries a separate fee.'],
   ['Can I add e-commerce, branding or SEO?', 'Yes. Packages can include brand, search, copy or ongoing growth work. E-commerce and specialist integrations are scoped separately because catalogue, payment and operational requirements vary.'],
   ['Do you offer monthly website finance?', 'We do not currently offer monthly finance or instalment plans. The only recurring cost is the optional £29/month care plan after launch.'],
 ];
@@ -883,7 +919,7 @@ export const pricingPage = () => layout({
   }, faqSchema(pricingFaqItems)],
   content: `${pageHero({ eyebrow: 'Transparent pricing', title: 'Website design pricing,<br>built around your goals.', copy: 'Compare two clear starting packages and one tailored Scale proposal. Your final scope, delivery dates, responsibilities, third-party fees and optional ongoing services are confirmed before work begins.', detail: 'Launch and Growth display starting prices. Scale is negotiable to the agreed scope. Your proposal confirms the final fee and whether VAT applies.' })}
     <section class="section pricing-page"><div class="shell pricing-grid">${pricingCards()}</div></section>
-    <section class="section ongoing-costs"><div class="shell">${sectionHeading({ eyebrow: 'Ongoing costs', title: 'Know what happens after launch.' })}<div class="cost-grid"><article><span>Annual renewal</span><b>£59 / year</b><p>From year three: standard hosting, SSL and renewal of one eligible domain registration.</p></article><article><span>Website updates</span><b>From £50</b><p>Minor supplied text, image and contact-detail changes on an existing page. New pages, redesigns, integrations and development are quoted separately.</p></article><article><span>Care plan</span><b>£29 / month</b><p>Hosting, renewal and up to two minor content updates each month. Unused updates do not roll over. Cancellation and handover terms are confirmed before the plan starts.</p></article></div><aside class="pricing-note"><b>Important</b><p>The £29 monthly care plan includes hosting and renewal, so it is an alternative to the £59 annual renewal — not an additional mandatory charge. Premium domains, paid software and specialist integrations are separate.</p></aside></div></section>
+    <section class="section ongoing-costs"><div class="shell">${sectionHeading({ eyebrow: 'Ongoing costs', title: 'Know what happens after launch.' })}<div class="cost-grid"><article><span>Annual renewal</span><b>£59 / year</b><p>From year three: standard hosting, SSL and renewal of one eligible domain registration.</p></article><article><span>Website updates</span><b>From £50</b><p>Minor changes to supplied text, images and contact details on an existing page. New pages, redesigns, integrations and development are quoted separately.</p></article><article><span>Care plan</span><b>£29/month</b><p>Hosting, renewal and up to two minor content updates each month. Unused updates do not roll over. Cancellation and handover terms are confirmed before the plan starts.</p></article></div><aside class="pricing-note"><b>Important</b><p>The £29/month care plan includes hosting and renewal, so it is an alternative to the £59 annual renewal — not an additional mandatory charge. Premium domains, paid software and specialist integrations are separate.</p></aside></div></section>
     <section class="section pricing-links"><div class="shell statement-grid"><p class="eyebrow">Before you choose</p><h2>Understand the service<br>and how it is delivered.</h2><p>Compare the full range of <a href="/services/">digital services</a>, then see the <a href="/how-it-works/">web design process</a> from discovery to launch.</p></div></section>
     <section class="section faq-section"><div class="shell faq-grid">${sectionHeading({ eyebrow: 'Pricing questions', title: 'Scope without surprises.' })}${faqs(pricingFaqItems)}</div></section>${finalCta({ eyebrow: 'Find the right scope', title: 'Not sure which package<br>fits your project?', copy: 'Tell us what you need the website to achieve. We’ll reply by email or WhatsApp with a recommended package and clear next steps.' })}`,
 });
@@ -919,7 +955,7 @@ export const insightsPage = () => layout({
 });
 
 export const contactForm = () => `
-  <form class="project-form" id="project-form" method="post" action="/api/contact" data-project-form novalidate>
+  <form class="project-form" id="project-form" method="post" action="/api/contact" data-project-form>
     <div class="form-status" role="status" aria-live="polite" data-form-status></div>
     <div class="honeypot" aria-hidden="true"><label>Leave this field empty <input type="text" name="bot-field" tabindex="-1" autocomplete="off"></label></div>
     <div class="form-grid">
@@ -928,7 +964,7 @@ export const contactForm = () => `
       <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" required><span class="field-error" id="email-error"></span></div>
       <div class="field"><label for="phone">Telephone <span>Optional</span></label><input id="phone" name="phone" type="tel" autocomplete="tel"></div>
       <div class="field"><label for="website">Current website <span>Optional</span></label><input id="website" name="website" type="url" inputmode="url" autocomplete="url" placeholder="https://"><span class="field-error" id="website-error"></span></div>
-      <div class="field"><label for="industry">Industry <span>Optional</span></label><input id="industry" name="industry" type="text" autocomplete="organization-title" placeholder="e.g. Healthcare, property, e-commerce"></div>
+      <div class="field"><label for="industry">Industry <span>Optional</span></label><input id="industry" name="industry" type="text" placeholder="e.g. Healthcare, property, e-commerce"></div>
       <div class="field field-wide"><label for="service">What support is required?</label><select id="service" name="service" required><option value="">Choose an option</option><option>Digital strategy</option><option>New website</option><option>Website redesign</option><option>E-commerce</option><option>Branding and positioning</option><option>SEO and search visibility</option><option>Landing pages and lead generation</option><option>Copy and content</option><option>Hosting and ongoing support</option><option>Digital growth</option></select><span class="field-error" id="service-error"></span></div>
       <div class="field"><label for="budget">Approximate budget <span>Optional</span></label><select id="budget" name="budget"><option value="">Choose a range</option><option>Up to £2,500</option><option>£2,500–£5,000</option><option>£5,000–£10,000</option><option>£10,000+</option><option>Not decided</option></select></div>
       <div class="field"><label for="contact-method">Preferred reply <span>Optional</span></label><select id="contact-method" name="contactMethod"><option value="">No preference</option><option>Email</option><option>WhatsApp</option></select></div>

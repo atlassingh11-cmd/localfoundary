@@ -1,6 +1,8 @@
 # Local Foundary website
 
-Production-ready static site for Local Foundary, built with shared data and reusable page templates. Cloudflare Pages serves the generated site and a Pages Function handles enquiries through the Resend HTTP API.
+Production-ready static site for Local Foundary, built with shared data and reusable page templates. GitHub is the source of truth and Cloudflare Workers Static Assets serves the generated site.
+
+For the repository upload and Cloudflare dashboard settings, see [`GITHUB-UPLOAD-CHECKLIST.md`](./GITHUB-UPLOAD-CHECKLIST.md).
 
 ## Local development
 
@@ -19,19 +21,25 @@ Open `http://127.0.0.1:4173/` after starting the local server.
 - `src/templates.mjs` — reusable page, navigation, footer, project, pricing and form components.
 - `src/styles.css` — design tokens, responsive layouts and motion system.
 - `src/site.js` — navigation, focus handling, scroll storytelling, reveals, validation and conversion-event hooks.
-- `functions/api/contact.js` — Cloudflare Pages Function for validated enquiry delivery.
+- `worker/index.js` — Cloudflare Worker for static delivery, permanent redirects, cache policy and preview no-index protection.
+- `functions/api/contact.js` — reserved enquiry handler; not active until the owner configures and tests Resend.
 - `scripts/build.mjs` — generates production routes, sitemap, robots, manifest, redirects and security headers.
 - `scripts/check.mjs` — validates metadata, canonicals, structured data, headings, links, assets and launch configuration.
-- `dist/` — generated Cloudflare Pages output.
+- `dist/` — generated Cloudflare static output.
 
-## Cloudflare Pages deployment
+## Cloudflare Workers deployment
 
 - Build command: `npm run build`
-- Build output directory: `dist`
-- Functions directory: `functions` (detected automatically by Cloudflare Pages)
-- Node version: current supported LTS
+- Static asset directory: `dist`
+- Worker configuration: `wrangler.jsonc`
+- Worker entry point: `worker/index.js`
+- Production branch: connect the clean GitHub production branch in Cloudflare Builds
+- Node version: `24.18.0`
+- Wrangler version: `4.111.0` (pinned in `package.json`)
 
-Configure these Cloudflare environment variables before testing the form:
+The Worker serves a branded 404 response, converts Cloudflare’s automatic trailing-slash redirect to a permanent 301, applies exact HTML/asset cache policies and adds `X-Robots-Tag: noindex, nofollow` only on `*.workers.dev` preview hosts. Canonical, Open Graph and sitemap URLs intentionally remain on `https://www.localfoundary.co.uk` until the domain cutover.
+
+The contact backend is intentionally deferred. Before enabling it, configure and test these Cloudflare secrets:
 
 Use [`.env.example`](./.env.example) as the variable checklist; never commit the populated values.
 
@@ -39,7 +47,19 @@ Use [`.env.example`](./.env.example) as the variable checklist; never commit the
 - `CONTACT_FROM` — optional; defaults to `Local Foundary Website <noreply@localfoundary.co.uk>` and must use a sender verified in Resend.
 - `CONTACT_TO` — optional; defaults to `info@localfoundary.co.uk`.
 
-The build writes Cloudflare-compatible `dist/_redirects` and `dist/_headers`. In the Cloudflare dashboard, also enable Always Use HTTPS and set `www.localfoundary.co.uk` as the primary production domain.
+The build also writes Cloudflare-compatible `dist/_redirects` and `dist/_headers`. At domain cutover, enable Always Use HTTPS and set `www.localfoundary.co.uk` as the primary production domain.
+
+Validate the Worker bundle without publishing:
+
+```bash
+npm run deploy:dry-run
+```
+
+When the connected Cloudflare project and account are confirmed, deploy with:
+
+```bash
+npm run deploy
+```
 
 ## Measurement
 

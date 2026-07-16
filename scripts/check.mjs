@@ -59,7 +59,7 @@ for (const file of htmlFiles) {
   if (relative === 'index.html' && (html.match(/class="portfolio-card reveal/g) || []).length !== 3) errors.push(`${relative}: homepage must contain three selected case-study cards`);
   if (relative === 'index.html' && !html.includes('href="/work/">Projects</a>')) errors.push(`${relative}: primary navigation must expose the projects page clearly`);
   if (relative === 'index.html' && !html.includes('class="hero-pin"')) errors.push(`${relative}: homepage hero must retain its pinned scroll stage`);
-  if (relative === 'index.html' && !html.includes('class="browser-page google-search-page"')) errors.push(`${relative}: homepage hero must include the search-style browser interface`);
+  if (relative === 'index.html' && !html.includes('class="browser-page search-results-page"')) errors.push(`${relative}: homepage hero must include the generic search-style browser interface`);
   if (relative === 'index.html' && ['problem-section', 'industries-home', 'why-foundary', 'proof-section'].some((className) => html.includes(`class="section ${className}`))) errors.push(`${relative}: repeated positioning sections should not lengthen the homepage`);
   if (relative === 'index.html' && html.indexOf('class="selected-work"') > html.indexOf('class="capabilities-section"')) errors.push(`${relative}: selected work should appear before core services`);
   if (!primaryNav.includes('href="/contact/">Contact us')) errors.push(`${relative}: primary navigation must use the accurate Contact us action`);
@@ -96,7 +96,10 @@ for (const file of htmlFiles) {
     try { await access(routeTarget(href)); } catch { errors.push(`${relative}: broken local link ${href}`); }
   }
 
-  const localAssets = [...html.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g)].map((match) => match[1]);
+  const localAssets = [
+    ...html.matchAll(/(?:src|href)="(\/assets\/[^"]+)"/g),
+    ...html.matchAll(/srcset="([^"]+)"/g),
+  ].flatMap((match) => match[1].split(',').map((candidate) => candidate.trim().split(/\s+/)[0])).filter((asset) => asset.startsWith('/assets/'));
   for (const asset of localAssets) {
     const assetPath = asset.split(/[?#]/)[0];
     try { await access(path.join(dist, assetPath.replace(/^\//, ''))); } catch { errors.push(`${relative}: missing asset ${asset}`); }
@@ -118,7 +121,7 @@ if (/Telephone|Video call/.test(contactMethod)) errors.push('contact/index.html:
 if (requiredContactFields >= 10) errors.push('contact/index.html: too many fields are mandatory');
 
 const pricingHtml = await readFile(path.join(dist, 'pricing', 'index.html'), 'utf8');
-for (const reference of ['Launch', 'Growth', 'Scale', '£549', '£949', 'Tailored quote', 'Negotiable to the agreed scope', '£59 / year', '£29 / month', 'From £50']) {
+for (const reference of ['Launch', 'Growth', 'Scale', '£549', '£949', 'Tailored quote', 'Tailored to the agreed scope', '£59 / year', '£29/month', 'From £50']) {
   if (!pricingHtml.includes(reference)) errors.push(`pricing/index.html: missing pricing reference ${reference}`);
 }
 if (pricingHtml.includes('£1,499')) errors.push('pricing/index.html: Scale must not display the retired fixed price');
@@ -182,13 +185,30 @@ const js = await readFile(path.join(dist, 'assets', 'site.js'), 'utf8');
 if (!css.includes('prefers-reduced-motion')) errors.push('styles.css: missing reduced-motion support');
 if (!css.includes('@media print') || !css.includes('.js .project-screenshot .desktop-device')) errors.push('styles.css: missing print fallback for reveal images');
 if (!css.includes('.footer-label') || /footer-grid h3/.test(css)) errors.push('styles.css: footer labels must remain UI text rather than inconsistent H3 headings');
-if (!css.includes('Shared alignment system')) errors.push('styles.css: missing shared card and split-section alignment system');
+if (!css.includes('.principle-grid') || !css.includes('.statement-grid')) errors.push('styles.css: missing shared card and split-section alignment system');
 if ((industriesHtml.match(/class="industry-campaign-links"/g) || []).length) errors.push('industries/index.html: targeted campaign links should live outside unequal industry cards');
 const processHtml = await readFile(path.join(dist, 'how-it-works', 'index.html'), 'utf8');
 if (!processHtml.includes('<b>Projects</b>')) errors.push('how-it-works/index.html: process proof row must contain the projects card');
 if (!js.includes("event.key === 'Escape'")) errors.push('site.js: missing escape-key menu support');
 if (!js.includes('aria-invalid')) errors.push('site.js: missing accessible form validation');
 if (/script-src 'self' 'unsafe-inline'/.test(headers)) errors.push('dist/_headers: script CSP should not allow unsafe-inline');
+if (/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(headers) || /fonts\.googleapis\.com|fonts\.gstatic\.com/.test(sourceTemplates)) errors.push('source: Google Fonts dependency should be removed');
+if (/100vw/.test(sourceStyles.match(/--shell:[^;]+/)?.[0] || '')) errors.push('src/styles.css: shell width must not use 100vw');
+if (contactHtml.includes(' novalidate') || contactHtml.includes('autocomplete="organization-title"')) errors.push('contact/index.html: progressive-enhancement validation attributes are incorrect');
+if (pricingHtml.includes('pricing-badge-placeholder">Recommended starting point')) errors.push('pricing/index.html: hidden recommendation badge must be empty');
+const homeHtml = await readFile(path.join(dist, 'index.html'), 'utf8');
+if (/system-label[^>]*aria-live/.test(homeHtml)) errors.push('index.html: scroll-linked hero label must not be a live region');
+for (const asset of ['fonts/manrope-latin.woff2', 'fonts/space-grotesk-latin.woff2', 'work/iffy-khan/site-desktop-800.webp', 'work/ste-hamilton-fitness/site-desktop-800.webp', 'work/pat-barrett/site-desktop-800.webp']) {
+  try { await access(path.join(dist, 'assets', asset)); } catch { errors.push(`dist/assets/${asset}: required optimised asset is missing`); }
+}
+try {
+  const wrangler = await readFile(path.join(root, 'wrangler.jsonc'), 'utf8');
+  const worker = await readFile(path.join(root, 'worker', 'index.js'), 'utf8');
+  if (!wrangler.includes('"not_found_handling": "404-page"')) errors.push('wrangler.jsonc: branded 404 handling is missing');
+  if (!worker.includes("endsWith('.workers.dev')") || !worker.includes('X-Robots-Tag')) errors.push('worker/index.js: preview no-index protection is missing');
+  if (!worker.includes('status: 301')) errors.push('worker/index.js: permanent trailing-slash redirect upgrade is missing');
+  if (!worker.includes('max-age=31536000, immutable') || !worker.includes('max-age=0, must-revalidate')) errors.push('worker/index.js: exact cache policies are missing');
+} catch { errors.push('Cloudflare Worker deployment configuration is missing'); }
 
 if (errors.length) {
   console.error(`QA failed with ${errors.length} issue${errors.length === 1 ? '' : 's'}:`);

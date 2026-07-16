@@ -175,14 +175,14 @@ export const pricing = [
     kicker: 'Focused website',
     price: '£549',
     description: 'A focused, professional starting point for a business that needs a clear and credible online presence.',
-    features: ['Up to 5 pages', 'Responsive custom design', 'Enquiry form and contact links', 'Standard hosting setup', 'On-page SEO foundations', '2 years standard hosting and one eligible domain registration'],
+    features: ['Up to 5 pages', 'Responsive custom design', 'Enquiry form and contact links', 'Standard hosting setup', 'On-page SEO foundations', 'Two years of standard hosting and one eligible domain registration'],
   },
   {
     name: 'Growth',
     kicker: 'Website & visibility',
     price: '£949',
     description: 'A broader digital foundation for businesses ready to connect website, search visibility and customer trust.',
-    features: ['Everything in Launch', 'Up to 10 pages', 'Google Business Profile setup', 'Local SEO foundations', 'Structured data', 'Review integration', '2 years standard hosting and one eligible domain registration'],
+    features: ['Everything in Launch', 'Up to 10 pages', 'Google Business Profile setup', 'Local SEO foundations', 'Structured data', 'Review integration', 'Two years of standard hosting and one eligible domain registration'],
     featured: true,
   },
   {
@@ -190,9 +190,9 @@ export const pricing = [
     kicker: 'Growth platform',
     price: null,
     priceLabel: 'Tailored quote',
-    priceNote: 'Negotiable to the agreed scope',
+    priceNote: 'Tailored to the agreed scope',
     description: 'A tailored platform for a broader offer or more complex customer journey, including e-commerce, branding or digital strategy where the agreed scope requires it.',
-    features: ['Everything in Growth', 'Strategy and positioning workshop', 'Expanded page scope agreed in proposal', 'Brand refinement or e-commerce scope where required', 'Lead capture automation', 'Advanced SEO and content structure', 'Analytics setup and a post-launch performance review', 'Priority support during the agreed launch period', '2 years standard hosting and one eligible domain registration'],
+    features: ['Everything in Growth', 'Strategy and positioning workshop', 'Expanded page scope agreed in proposal', 'Brand refinement or e-commerce scope where required', 'Lead capture automation', 'Advanced SEO and content structure', 'Analytics setup and a post-launch performance review', 'Priority support during the agreed launch period', 'Two years of standard hosting and one eligible domain registration'],
   },
 ];
 
@@ -320,7 +320,7 @@ export const servicePages = [
 
 export const industryPageData = {
   'websites-for-plumbers': {
-    title: 'Websites for plumbers that work at call-out speed.',
+    title: 'Plumbers’ websites that work at call-out speed.',
     eyebrow: 'Plumbers & heating engineers',
     intro: 'Mobile-first websites that make services, areas, trust signals and the route to call immediately clear — without making every page sound the same.',
     needs: ['Emergency and planned-work journeys', 'Service and area pages', 'Accreditation and review placement', 'Click-to-call and quote forms', 'Local SEO and service-area structure'],
@@ -333,7 +333,7 @@ export const industryPageData = {
     ctaTitle: 'Ready for a plumbing website customers can act on?',
   },
   'websites-for-electricians': {
-    title: 'Websites for electricians that make electrical expertise easy to trust.',
+    title: 'Electricians’ websites that make electrical expertise easy to trust.',
     eyebrow: 'Electricians',
     intro: 'A clear digital presence for domestic, commercial and specialist electrical work — designed to help customers understand capability and request the right quote.',
     needs: ['Domestic and commercial service paths', 'Accreditation placement', 'Project and proof content', 'Quote qualification', 'Local SEO and service-area structure'],
@@ -346,9 +346,9 @@ export const industryPageData = {
     ctaTitle: 'Ready to make your electrical expertise easier to choose?',
   },
   'websites-for-builders': {
-    title: 'Websites for builders that turn completed projects into serious enquiries.',
+    title: 'Builders’ websites that turn completed projects into serious enquiries.',
     eyebrow: 'Builders & construction',
-    intro: 'Project-led websites that give extensions, renovations and new-build work the space it deserves while helping customers understand scope and fit.',
+    intro: 'Project-led websites that give extensions, renovations and new-build work the space they deserve while helping customers understand scope and fit.',
     needs: ['Editorial project galleries', 'Service and project-type pages', 'Before-and-after presentation', 'Enquiry qualification', 'Local SEO and service-area structure'],
     seoTitle: 'Websites for Builders & Construction | Local Foundary',
     seoDescription: 'Project-led websites for builders and construction companies, with galleries, service content and qualified enquiry journeys.',

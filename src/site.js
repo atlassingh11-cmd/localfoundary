@@ -81,20 +81,33 @@ document.documentElement.classList.add('js');
 
   if (toggle && navigation) {
     const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const toggleLabel = toggle.querySelector('.sr-only');
+    const menuBackground = [document.querySelector('main'), document.querySelector('footer'), document.querySelector('.whatsapp-button')].filter(Boolean);
+    const setMenuBackgroundInert = (isInert) => menuBackground.forEach((element) => {
+      if (isInert) {
+        element.setAttribute('inert', '');
+        element.setAttribute('aria-hidden', 'true');
+      } else {
+        element.removeAttribute('inert');
+        element.removeAttribute('aria-hidden');
+      }
+    });
 
     const closeMenu = ({ restoreFocus = false } = {}) => {
       navigation.classList.remove('open');
       toggle.setAttribute('aria-expanded', 'false');
-      toggle.querySelector('.sr-only').textContent = 'Open navigation';
+      if (toggleLabel) toggleLabel.textContent = 'Open navigation';
       document.body.classList.remove('menu-open');
+      setMenuBackgroundInert(false);
       if (restoreFocus) toggle.focus();
     };
 
     const openMenu = () => {
       navigation.classList.add('open');
       toggle.setAttribute('aria-expanded', 'true');
-      toggle.querySelector('.sr-only').textContent = 'Close navigation';
+      if (toggleLabel) toggleLabel.textContent = 'Close navigation';
       document.body.classList.add('menu-open');
+      setMenuBackgroundInert(true);
       navigation.querySelector('a')?.focus();
     };
 
@@ -115,7 +128,7 @@ document.documentElement.classList.add('js');
         return;
       }
       if (event.key !== 'Tab') return;
-      const focusable = [...navigation.querySelectorAll(focusableSelector), toggle].filter((element) => element.offsetParent !== null);
+      const focusable = [header?.querySelector('.brand'), toggle, ...navigation.querySelectorAll(focusableSelector)].filter((element) => element && element.offsetParent !== null);
       if (!focusable.length) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
@@ -128,9 +141,12 @@ document.documentElement.classList.add('js');
       }
     });
 
-    window.matchMedia('(min-width: 821px)').addEventListener('change', (event) => {
+    const desktopMenuQuery = window.matchMedia('(min-width: 821px)');
+    const handleDesktopMenu = (event) => {
       if (event.matches) closeMenu();
-    });
+    };
+    if (typeof desktopMenuQuery.addEventListener === 'function') desktopMenuQuery.addEventListener('change', handleDesktopMenu);
+    else if (typeof desktopMenuQuery.addListener === 'function') desktopMenuQuery.addListener(handleDesktopMenu);
   }
 
   const progressiveItems = document.querySelectorAll([
@@ -336,6 +352,7 @@ document.documentElement.classList.add('js');
         const heroRect = openingHero.getBoundingClientRect();
         const heroExit = Math.min(1, Math.max(0, -heroRect.top / Math.max(1, heroRect.height * .72)));
         openingHero.style.setProperty('--hero-exit', heroExit.toFixed(3));
+        openingHero.style.setProperty('--hero-copy-exit', Math.min(1, heroExit * 2.4).toFixed(3));
         setHeroStage(Math.min(heroStageLabels.length, Math.floor(heroExit * heroStageLabels.length) + 1));
       }
 
@@ -506,11 +523,12 @@ document.documentElement.classList.add('js');
 
   const form = document.querySelector('[data-project-form]');
   if (form) {
+    form.setAttribute('novalidate', '');
     const status = form.querySelector('[data-form-status]');
     const validatedFields = [...form.querySelectorAll('input, select, textarea')]
       .filter((field) => !field.closest('.honeypot'));
     const params = new URLSearchParams(window.location.search);
-    if (params.get('submitted') === 'error') {
+    if (params.get('submitted') === 'error' && status) {
       status.textContent = 'We could not send that enquiry. Please try again or email info@localfoundary.co.uk.';
       status.scrollIntoView({ block: 'center' });
       track('lf_form_error', { reason: 'delivery_redirect' });
@@ -544,12 +562,12 @@ document.documentElement.classList.add('js');
     form.addEventListener('submit', (event) => {
       const invalid = validatedFields.filter((field) => !showFieldState(field));
       if (!invalid.length) {
-        status.textContent = 'Sending your enquiry…';
+        if (status) status.textContent = 'Sending your enquiry…';
         track('lf_form_submit', { service: form.elements.service?.value || 'not_selected' });
         return;
       }
       event.preventDefault();
-      status.textContent = `Please check ${invalid.length === 1 ? 'the highlighted field' : 'the highlighted fields'} and try again.`;
+      if (status) status.textContent = `Please check ${invalid.length === 1 ? 'the highlighted field' : 'the highlighted fields'} and try again.`;
       track('lf_form_error', { reason: 'validation', invalid_fields: invalid.map((field) => field.name).join(',') });
       invalid[0].focus();
     });

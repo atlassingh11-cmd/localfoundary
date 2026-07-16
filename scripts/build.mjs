@@ -24,6 +24,13 @@ import {
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 
+const minifyCss = (source) => source
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .replace(/\s+/g, ' ')
+  .replace(/\s*([{}:;,>])\s*/g, '$1')
+  .replace(/;}\s*/g, '}')
+  .trim();
+
 await rm(dist, { recursive: true, force: true });
 await mkdir(path.join(dist, 'assets'), { recursive: true });
 
@@ -57,7 +64,7 @@ const writeRoute = async (route, contents) => {
 
 await Promise.all(routes.map(([route, contents]) => writeRoute(route, contents)));
 await writeFile(path.join(dist, '404.html'), notFoundPage());
-await cp(path.join(root, 'src', 'styles.css'), path.join(dist, 'assets', 'styles.css'));
+await writeFile(path.join(dist, 'assets', 'styles.css'), minifyCss(await readFile(path.join(root, 'src', 'styles.css'), 'utf8')));
 await cp(path.join(root, 'src', 'site.js'), path.join(dist, 'assets', 'site.js'));
 await cp(path.join(root, 'assets'), path.join(dist, 'assets'), {
   recursive: true,
@@ -76,14 +83,20 @@ await Promise.all(staticFiles.map(async (file) => {
 const sitemapRoutes = routes
   .map(([route]) => route)
   .filter((route) => !['/thanks/', '/insights/'].includes(route))
-  .map((route) => `  <url><loc>${site.url}${route === '/' ? '/' : route}</loc><lastmod>2026-07-14</lastmod></url>`)
+  .map((route) => `  <url><loc>${site.url}${route === '/' ? '/' : route}</loc><lastmod>2026-07-16</lastmod></url>`)
   .join('\n');
 await writeFile(path.join(dist, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${sitemapRoutes}
 </urlset>\n`);
 await writeFile(path.join(dist, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${site.url}/sitemap.xml\n`);
-await writeFile(path.join(dist, '_redirects'), `/services.html /services/ 301
+const trailingSlashRedirects = routes
+  .map(([route]) => route)
+  .filter((route) => route !== '/')
+  .map((route) => `${route.slice(0, -1)} ${route} 301`)
+  .join('\n');
+await writeFile(path.join(dist, '_redirects'), `${trailingSlashRedirects}
+/services.html /services/ 301
 /index.html / 301
 /industries.html /industries/ 301
 /pricing.html /pricing/ 301
@@ -98,16 +111,12 @@ await writeFile(path.join(dist, '_redirects'), `/services.html /services/ 301
 /thanks.html /thanks/ 301
 `);
 await writeFile(path.join(dist, '_headers'), `/*
-  Cache-Control: public, max-age=0, must-revalidate
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; frame-ancestors 'self'
-
-/assets/*
-  Cache-Control: public, max-age=31536000, immutable
+  Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; script-src 'self'; connect-src 'self'; form-action 'self'; base-uri 'self'; frame-ancestors 'self'
 `);
 await writeFile(path.join(dist, 'site.webmanifest'), JSON.stringify({
   name: 'Local Foundary', short_name: 'Local Foundary', start_url: '/', display: 'standalone',
