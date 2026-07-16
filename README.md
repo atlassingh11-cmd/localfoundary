@@ -15,6 +15,12 @@ python3 -m http.server 4173 -d dist
 
 Open `http://127.0.0.1:4173/` after starting the local server.
 
+For a full-fidelity local preview that also runs the `/api/contact` Worker route, use:
+
+```bash
+npx wrangler dev
+```
+
 ## Project structure
 
 - `src/data.mjs` — services, projects, industries, process and pricing data.

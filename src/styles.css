@@ -1027,6 +1027,7 @@ h3 { font-size: clamp(1.45rem, 2.2vw, 2.25rem); }
 .advantage-grid { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
 .advantage-grid article { min-height: 280px; padding: 2rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .advantage-grid span, .industry-sector-head > span, .process-detail-grid article > span, .insight-grid article > span { color: var(--blue); font-size: .65rem; font-weight: 800; letter-spacing: .12em; }
+.industry-sector-head > span { color: var(--lime-dark); }
 .advantage-grid h3 { margin: 4rem 0 1rem; font-size: clamp(1.35rem, 1.8vw, 1.8rem); }
 .advantage-grid p { margin: 0; color: var(--muted); }
 
@@ -1505,7 +1506,6 @@ h3 { font-size: clamp(1.45rem, 2.2vw, 2.25rem); }
   .button-row .text-link { align-self: flex-start; }
   .final-cta .final-cta-whatsapp { align-self: flex-start; }
   .hero-copy h1 span { display: inline; }
-  .hero-copy h1 span + span::before { content: " "; }
   .hero-system { height: 440px; margin-top: 1.5rem; }
   .hero-browser { width: 94%; left: 3%; top: 16%; transform: none; }
   .browser-page { min-height: 300px; padding: 2.2rem 1.5rem; }
