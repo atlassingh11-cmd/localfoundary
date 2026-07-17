@@ -382,6 +382,12 @@ const breadcrumbSchema = (items = []) => items.length < 2 ? null : ({
   })),
 });
 
+const formatHeadingHtml = (value = '') => value.replace(/<br\s*\/?>\s*/gi, '<br> ');
+const normaliseHeadingWhitespace = (html = '') => html.replace(
+  /<h([1-6])(\b[^>]*)>([\s\S]*?)<\/h\1>/gi,
+  (match, level, attributes, inner) => `<h${level}${attributes}>${formatHeadingHtml(inner)}</h${level}>`,
+);
+
 export const layout = ({
   title,
   description,
@@ -437,14 +443,14 @@ export const layout = ({
   <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
   ${preloadAssets.map((asset) => `<link rel="preload" href="${asset.href}" as="image"${asset.type ? ` type="${asset.type}"` : ''}${asset.media ? ` media="${asset.media}"` : ''}>`).join('\n  ')}
-  <link rel="stylesheet" href="/assets/styles.css?v=20260716b">
+  <link rel="stylesheet" href="/assets/styles.css?v=20260717a">
   ${schemas.map((item) => `<script type="application/ld+json">${JSON.stringify(item)}</script>`).join('\n  ')}
-  <script src="/assets/site.js?v=20260716b" defer></script>
+  <script src="/assets/site.js?v=20260717a" defer></script>
 </head>
 <body class="intro-pending ${bodyClass}">
   ${pageLoader()}
   ${header(active)}
-  <main id="main">${content}</main>
+  <main id="main">${normaliseHeadingWhitespace(content)}</main>
   ${footer()}
   ${whatsappButton()}
 </body>
@@ -454,7 +460,7 @@ export const layout = ({
 const sectionHeading = ({ eyebrow, title, copy = '', align = '' }) => `
   <div class="section-heading ${align}">
     <p class="eyebrow">${eyebrow}</p>
-    <h2>${title}</h2>
+    <h2>${formatHeadingHtml(title)}</h2>
     ${copy ? `<p class="lede">${copy}</p>` : ''}
   </div>`;
 
@@ -468,6 +474,7 @@ const buttonRow = (primaryHref = '/contact/', secondaryHref = '/work/', primary 
 };
 
 const heroSystem = () => `
+  <div class="hero-system-track">
   <div class="hero-system" data-parallax data-scroll-stage="1" role="img" aria-label="Scroll-linked illustration showing brand, website, search visibility, reviews and an enquiry working together">
     <div class="system-label">
       <span>How it fits together</span>
@@ -498,6 +505,7 @@ const heroSystem = () => `
     <div class="system-card card-trust" data-hero-card="4"><span>Trust</span><b>Reviews connected</b><small>Proof where decisions happen</small></div>
     <div class="system-card card-lead" data-hero-card="5"><i></i><span>New enquiry</span><b>Ready to respond</b></div>
     <svg class="system-lines" viewBox="0 0 720 620" aria-hidden="true"><path d="M140 142C245 108 266 168 360 160S507 87 600 135"/><path d="M115 445c106 41 165-26 248 5s148 94 246 20"/><path d="M357 151v300"/></svg>
+  </div>
   </div>`;
 
 const projectVisual = (project, extraClass = '') => {
@@ -669,7 +677,7 @@ const finalCta = ({ eyebrow = 'A useful next step', title = 'Let’s build somet
   <section class="section final-cta">
     <div class="shell final-cta-inner">
       <p class="eyebrow">${eyebrow}</p>
-      <h2>${title}</h2>
+      <h2>${formatHeadingHtml(title)}</h2>
       <p class="lede">${copy}</p>
       <div class="button-row">
         <a class="button button-accent" href="/contact/">Contact us ${arrow}</a>
@@ -790,7 +798,7 @@ export const homePage = () => layout({
 const pageHero = ({ eyebrow, title, copy, detail = '', actions = true }) => `
   <section class="page-hero">
     <div class="shell page-hero-grid">
-      <div><p class="eyebrow eyebrow-light">${eyebrow}</p><h1>${title}</h1></div>
+      <div><p class="eyebrow eyebrow-light">${eyebrow}</p><h1>${formatHeadingHtml(title)}</h1></div>
       <div><p class="page-hero-copy">${copy}</p>${detail ? `<p class="page-hero-detail">${detail}</p>` : ''}${actions ? buttonRow() : ''}</div>
     </div>
   </section>`;

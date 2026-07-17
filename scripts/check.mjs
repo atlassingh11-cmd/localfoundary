@@ -42,6 +42,8 @@ for (const file of htmlFiles) {
   if (relative === '404.html' && canonical) errors.push(`${relative}: noindex 404 page should not declare a canonical URL`);
   if (relative !== '404.html' && !canonical) errors.push(`${relative}: missing canonical URL`);
   if (h1Count !== 1) errors.push(`${relative}: expected one h1, found ${h1Count}`);
+  const headings = [...html.matchAll(/<h[1-6](?:\s[^>]*)?>([\s\S]*?)<\/h[1-6]>/g)].map((match) => match[1]);
+  if (headings.some((heading) => /<br\s*\/?>\S/i.test(heading))) errors.push(`${relative}: heading line break is missing a real whitespace node`);
   if (html.includes('class="page-hero"') && !html.match(/class="page-hero"[\s\S]*?<h1>[^<]/)) errors.push(`${relative}: page hero is missing visible h1 text`);
   if (title) {
     if (titles.has(title)) errors.push(`${relative}: duplicate title also used by ${titles.get(title)}`);
@@ -184,6 +186,7 @@ const js = await readFile(path.join(dist, 'assets', 'site.js'), 'utf8');
 if (!css.includes('prefers-reduced-motion')) errors.push('styles.css: missing reduced-motion support');
 if (!css.includes('@media print') || !css.includes('.js .project-screenshot .desktop-device')) errors.push('styles.css: missing print fallback for reveal images');
 if (!css.includes('.footer-label') || /footer-grid h3/.test(css)) errors.push('styles.css: footer labels must remain UI text rather than inconsistent H3 headings');
+if (!/\.footer-base a\s*\{[^}]*min-height:\s*44px/.test(css)) errors.push('styles.css: footer legal links must retain 44px touch targets');
 if (!css.includes('.principle-grid') || !css.includes('.statement-grid')) errors.push('styles.css: missing shared card and split-section alignment system');
 if ((industriesHtml.match(/class="industry-campaign-links"/g) || []).length) errors.push('industries/index.html: targeted campaign links should live outside unequal industry cards');
 const processHtml = await readFile(path.join(dist, 'how-it-works', 'index.html'), 'utf8');
@@ -193,9 +196,12 @@ if (!js.includes('aria-invalid')) errors.push('site.js: missing accessible form 
 if (/script-src 'self' 'unsafe-inline'/.test(headers)) errors.push('dist/_headers: script CSP should not allow unsafe-inline');
 if (/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(headers) || /fonts\.googleapis\.com|fonts\.gstatic\.com/.test(sourceTemplates)) errors.push('source: Google Fonts dependency should be removed');
 if (/100vw/.test(sourceStyles.match(/--shell:[^;]+/)?.[0] || '')) errors.push('src/styles.css: shell width must not use 100vw');
+if (/body\s*\{[^}]*min-width:\s*320px/.test(sourceStyles)) errors.push('src/styles.css: fixed body minimum width causes classic-scrollbar overflow at 320px');
 if (contactHtml.includes(' novalidate') || contactHtml.includes('autocomplete="organization-title"')) errors.push('contact/index.html: progressive-enhancement validation attributes are incorrect');
 if (pricingHtml.includes('pricing-badge-placeholder">Recommended starting point')) errors.push('pricing/index.html: hidden recommendation badge must be empty');
 const homeHtml = await readFile(path.join(dist, 'index.html'), 'utf8');
+if (!homeHtml.includes('class="hero-system-track"')) errors.push('index.html: mobile hero sticky runway wrapper is missing');
+if (!homeHtml.includes('styles.css?v=20260717a') || !homeHtml.includes('site.js?v=20260717a')) errors.push('index.html: release asset version must be 20260717a');
 if (/system-label[^>]*aria-live/.test(homeHtml)) errors.push('index.html: scroll-linked hero label must not be a live region');
 for (const asset of ['fonts/manrope-latin.woff2', 'fonts/space-grotesk-latin.woff2', 'work/iffy-khan/site-desktop-800.webp', 'work/ste-hamilton-fitness/site-desktop-800.webp', 'work/pat-barrett/site-desktop-800.webp']) {
   try { await access(path.join(dist, 'assets', asset)); } catch { errors.push(`dist/assets/${asset}: required optimised asset is missing`); }

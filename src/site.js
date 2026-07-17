@@ -3,6 +3,7 @@ document.documentElement.classList.add('js');
 (() => {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const mobileMotion = window.matchMedia('(max-width: 820px)');
+  const mobileHeroPin = window.matchMedia('(max-width: 1080px) and (min-height: 500px) and (prefers-reduced-motion: no-preference)');
   window.dataLayer = window.dataLayer || [];
   const track = (event, details = {}) => {
     const payload = { event, page_path: window.location.pathname, ...details };
@@ -353,7 +354,24 @@ document.documentElement.classList.add('js');
         const heroExit = Math.min(1, Math.max(0, -heroRect.top / Math.max(1, heroRect.height * .72)));
         openingHero.style.setProperty('--hero-exit', heroExit.toFixed(3));
         openingHero.style.setProperty('--hero-copy-exit', Math.min(1, heroExit * 2.4).toFixed(3));
-        setHeroStage(Math.min(heroStageLabels.length, Math.floor(heroExit * heroStageLabels.length) + 1));
+        let stageProgress = heroExit;
+        if (mobileHeroPin.matches && heroMotionStage) {
+          // Pinned mobile hero: stages track how far the sticky visual has travelled
+          // through its runway (.hero-system-track), so every state plays out on
+          // screen while pinned. Rects are read fresh each frame — no stale
+          // measurements after resize, orientation change, font or image load.
+          const track = heroMotionStage.closest('.hero-system-track');
+          if (track) {
+            const sysRect = heroMotionStage.getBoundingClientRect();
+            const trackRect = track.getBoundingClientRect();
+            const runway = trackRect.height - sysRect.height;
+            if (runway > 40) {
+              const consumed = sysRect.top - trackRect.top;
+              stageProgress = Math.min(1, Math.max(0, consumed / Math.max(1, runway * .9)));
+            }
+          }
+        }
+        setHeroStage(Math.min(heroStageLabels.length, Math.floor(stageProgress * heroStageLabels.length) + 1));
       }
 
       const motionScale = mobileMotion.matches ? .42 : 1;
@@ -382,6 +400,11 @@ document.documentElement.classList.add('js');
   updateScrollStory();
   window.addEventListener('scroll', updateScrollStory, { passive: true });
   window.addEventListener('resize', updateScrollStory, { passive: true });
+  window.addEventListener('orientationchange', updateScrollStory, { passive: true });
+  window.addEventListener('load', updateScrollStory, { passive: true });
+  if (document.fonts?.ready) document.fonts.ready.then(updateScrollStory);
+  if (typeof mobileHeroPin.addEventListener === 'function') mobileHeroPin.addEventListener('change', updateScrollStory);
+  else if (typeof mobileHeroPin.addListener === 'function') mobileHeroPin.addListener(updateScrollStory);
 
   const presenceStory = document.querySelector('[data-presence-story]');
   if (presenceStory) {

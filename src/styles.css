@@ -42,7 +42,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: auto; background: var(--ink); }
 html.js.smooth-scroll { scroll-behavior: smooth; }
-body { margin: 0; min-width: 320px; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.65; overflow-x: hidden; }
+body { margin: 0; min-width: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.65; overflow-x: hidden; }
 body.menu-open { overflow: hidden; }
 body.intro-active { height: 100svh; overflow: hidden; }
 img, svg, picture { display: block; max-width: 100%; }
@@ -454,7 +454,8 @@ body.menu-open .whatsapp-button { opacity: 0; pointer-events: none; }
 .footer-brand > a { min-height: 44px; display: flex; align-items: center; color: var(--white); font-size: .82rem; text-decoration: none; }
 .footer-brand > a.footer-whatsapp { width: 56px; height: 56px; min-height: 56px; margin-top: .75rem; padding: 5px; display: inline-grid; }
 .footer-base { min-height: 90px; display: flex; justify-content: space-between; align-items: center; gap: 2rem; border-top: 1px solid var(--line-light); color: rgba(255,255,255,.64); font-size: .68rem; }
-.footer-base a { margin-left: 1rem; }
+.footer-base > span:last-child { display: flex; align-items: center; gap: .15rem; }
+.footer-base a { min-height: 44px; margin-left: 0; padding: 0 .45rem; display: inline-flex; align-items: center; justify-content: center; }
 
 .page-hero { min-height: 72vh; padding: 190px 0 7rem; display: flex; align-items: flex-end; background: var(--ink); color: var(--white); position: relative; overflow: hidden; }
 .page-hero::after { content: ""; width: 42vw; aspect-ratio: 1; position: absolute; right: -12vw; bottom: -25vw; border: 1px solid rgba(199,240,0,.14); border-radius: 50%; box-shadow: 0 0 0 7vw rgba(199,240,0,.02), 0 0 0 14vw rgba(199,240,0,.015); }
@@ -1341,6 +1342,30 @@ h3 { font-size: clamp(1.45rem, 2.2vw, 2.25rem); }
   .hero-copy h1 { font-size: clamp(3.1rem, min(4.85vw, 7.75vh), 5rem); line-height: .96; }
   .hero-lede { max-width: 610px; font-size: 1.03rem; line-height: 1.55; }
   .hero-copy .button-row { margin-top: 1rem; }
+}
+
+/* Mobile + tablet pinned hero story: mirrors the desktop scroll-driven stages.
+   .hero-system-track is display:contents everywhere (invisible to the desktop grid);
+   in this range it becomes a tall runway and the visual pins (sticky) inside it, so
+   each of the five stages gets a deliberate stretch of scroll. overflow/contain are
+   cleared because an overflow:hidden ancestor disables position:sticky. A sticky
+   grid item is confined to its own grid area, which is why the runway must be the
+   grid item rather than grid padding. Short-landscape viewports and reduced-motion
+   keep the existing linear flow. */
+.hero-system-track { display: contents; }
+@media (max-width: 1080px) and (min-height: 500px) and (prefers-reduced-motion: no-preference) {
+  .hero { --sys-h: 600px; }
+  .hero-pin { overflow: visible; contain: none; }
+  .hero-pin::before { display: none; }
+  .hero-system-track { display: block; height: calc(var(--sys-h, 600px) + 200svh); }
+  .hero-system { position: sticky; top: max(14px, calc((100svh - var(--sys-h, 600px)) / 2)); z-index: 2; }
+}
+@media (max-width: 820px) and (min-height: 500px) and (prefers-reduced-motion: no-preference) {
+  .hero { --sys-h: 510px; }
+}
+
+@media (max-width: 1080px) and (max-height: 499px) {
+  .js [data-reveal][data-reveal-style="slide"] { transform: translate3d(0, 16px, 0); }
 }
 
 @media (max-width: 1080px) {

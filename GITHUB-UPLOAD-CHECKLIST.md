@@ -12,9 +12,9 @@ Upload the **contents** of the GitHub-ready folder to a new, empty GitHub reposi
 - Static assets directory: `dist` (configured in `wrangler.jsonc`)
 - Production branch: choose the clean GitHub production branch
 
-The Workers preview must remain on its `*.workers.dev` address until the domain cutover is approved. Canonical, Open Graph and sitemap URLs intentionally remain `https://www.localfoundary.co.uk`.
+The `*.workers.dev` preview remains protected by `X-Robots-Tag: noindex, nofollow`. Canonical, Open Graph and sitemap URLs target `https://www.localfoundary.co.uk`.
 
-## Before the eventual domain cutover
+## Production verification
 
 1. Confirm the Cloudflare preview deploy passes and every route loads.
 2. Configure Resend before treating the form as live:
@@ -24,9 +24,9 @@ The Workers preview must remain on its `*.workers.dev` address until the domain 
    ```
 
    `CONTACT_FROM` and `CONTACT_TO` are optional Worker variables; the code defaults to `Local Foundary Website <noreply@localfoundary.co.uk>` and `info@localfoundary.co.uk`.
-3. Add `www.localfoundary.co.uk` as the primary custom domain only on the agreed cutover day.
-4. Redirect the apex domain to `www`, enable Always Use HTTPS and test the branded 404 response.
-5. Submit a controlled enquiry only after the contact endpoint is activated.
+3. Confirm `www.localfoundary.co.uk` remains the primary custom domain and the apex redirects to `www`.
+4. Confirm Always Use HTTPS, the branded 404 response, security headers and production cache policies.
+5. Submit a controlled enquiry after the contact endpoint and Resend secret are active.
 
 ## Local verification
 

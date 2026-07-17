@@ -42,7 +42,7 @@ npx wrangler dev
 - Node version: `24.18.0`
 - Wrangler version: `4.111.0` (pinned in `package.json`)
 
-The Worker serves a branded 404 response, converts Cloudflare’s automatic trailing-slash redirect to a permanent 301, applies exact HTML/asset cache policies and adds `X-Robots-Tag: noindex, nofollow` only on `*.workers.dev` preview hosts. Canonical, Open Graph and sitemap URLs intentionally remain on `https://www.localfoundary.co.uk` until the domain cutover.
+The Worker serves a branded 404 response, converts Cloudflare’s automatic trailing-slash redirect to a permanent 301, applies exact HTML/asset cache policies and adds `X-Robots-Tag: noindex, nofollow` only on `*.workers.dev` preview hosts. Canonical, Open Graph and sitemap URLs target the production site at `https://www.localfoundary.co.uk`.
 
 The contact handler is included in the Worker. Email delivery remains inactive until these Cloudflare secrets are configured and tested:
 
@@ -52,7 +52,7 @@ Use [`.env.example`](./.env.example) as the variable checklist; never commit the
 - `CONTACT_FROM` — optional; defaults to `Local Foundary Website <noreply@localfoundary.co.uk>` and must use a sender verified in Resend.
 - `CONTACT_TO` — optional; defaults to `info@localfoundary.co.uk`.
 
-The build also writes Cloudflare-compatible `dist/_redirects` and `dist/_headers`. At domain cutover, enable Always Use HTTPS and set `www.localfoundary.co.uk` as the primary production domain.
+The build also writes Cloudflare-compatible `dist/_redirects` and `dist/_headers`. Keep Always Use HTTPS enabled and `www.localfoundary.co.uk` configured as the primary production domain.
 
 Validate the Worker bundle without publishing:
 
