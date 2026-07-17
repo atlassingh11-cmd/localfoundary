@@ -443,9 +443,9 @@ export const layout = ({
   <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
   ${preloadAssets.map((asset) => `<link rel="preload" href="${asset.href}" as="image"${asset.type ? ` type="${asset.type}"` : ''}${asset.media ? ` media="${asset.media}"` : ''}>`).join('\n  ')}
-  <link rel="stylesheet" href="/assets/styles.css?v=20260717a">
+  <link rel="stylesheet" href="/assets/styles.css?v=20260717b">
   ${schemas.map((item) => `<script type="application/ld+json">${JSON.stringify(item)}</script>`).join('\n  ')}
-  <script src="/assets/site.js?v=20260717a" defer></script>
+  <script src="/assets/site.js?v=20260717b" defer></script>
 </head>
 <body class="intro-pending ${bodyClass}">
   ${pageLoader()}

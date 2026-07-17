@@ -194,6 +194,8 @@ if (!processHtml.includes('<b>Projects</b>')) errors.push('how-it-works/index.ht
 if (!js.includes("event.key === 'Escape'")) errors.push('site.js: missing escape-key menu support');
 if (!js.includes('aria-invalid')) errors.push('site.js: missing accessible form validation');
 if (/script-src 'self' 'unsafe-inline'/.test(headers)) errors.push('dist/_headers: script CSP should not allow unsafe-inline');
+if (!headers.includes("script-src 'self' https://static.cloudflareinsights.com")) errors.push('dist/_headers: Cloudflare Web Analytics script is blocked by CSP');
+if (!headers.includes("connect-src 'self' https://cloudflareinsights.com")) errors.push('dist/_headers: Cloudflare Web Analytics reporting endpoint is blocked by CSP');
 if (/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(headers) || /fonts\.googleapis\.com|fonts\.gstatic\.com/.test(sourceTemplates)) errors.push('source: Google Fonts dependency should be removed');
 if (/100vw/.test(sourceStyles.match(/--shell:[^;]+/)?.[0] || '')) errors.push('src/styles.css: shell width must not use 100vw');
 if (/body\s*\{[^}]*min-width:\s*320px/.test(sourceStyles)) errors.push('src/styles.css: fixed body minimum width causes classic-scrollbar overflow at 320px');
@@ -201,7 +203,7 @@ if (contactHtml.includes(' novalidate') || contactHtml.includes('autocomplete="o
 if (pricingHtml.includes('pricing-badge-placeholder">Recommended starting point')) errors.push('pricing/index.html: hidden recommendation badge must be empty');
 const homeHtml = await readFile(path.join(dist, 'index.html'), 'utf8');
 if (!homeHtml.includes('class="hero-system-track"')) errors.push('index.html: mobile hero sticky runway wrapper is missing');
-if (!homeHtml.includes('styles.css?v=20260717a') || !homeHtml.includes('site.js?v=20260717a')) errors.push('index.html: release asset version must be 20260717a');
+if (!homeHtml.includes('styles.css?v=20260717b') || !homeHtml.includes('site.js?v=20260717b')) errors.push('index.html: release asset version must be 20260717b');
 if (/system-label[^>]*aria-live/.test(homeHtml)) errors.push('index.html: scroll-linked hero label must not be a live region');
 for (const asset of ['fonts/manrope-latin.woff2', 'fonts/space-grotesk-latin.woff2', 'work/iffy-khan/site-desktop-800.webp', 'work/ste-hamilton-fitness/site-desktop-800.webp', 'work/pat-barrett/site-desktop-800.webp']) {
   try { await access(path.join(dist, 'assets', asset)); } catch { errors.push(`dist/assets/${asset}: required optimised asset is missing`); }

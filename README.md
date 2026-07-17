@@ -68,7 +68,7 @@ npm run deploy
 
 ## Measurement
 
-`src/site.js` creates a provider-agnostic `dataLayer` and emits CTA, enquiry-submit, success, email and WhatsApp events. No analytics provider or non-essential tracking cookies are enabled yet. Add a real analytics property only after the measurement and consent approach is confirmed, then update the CSP and privacy controls if required.
+`src/site.js` creates a provider-agnostic `dataLayer` and emits CTA, enquiry-submit, success, email and WhatsApp events. The generated CSP permits Cloudflare Web Analytics to load its privacy-first beacon and submit performance data; Web Analytics must still be enabled and verified in the Cloudflare dashboard. No non-essential tracking cookies are enabled.
 
 ## Content handoff
 
