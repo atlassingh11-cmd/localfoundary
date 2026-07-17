@@ -332,15 +332,15 @@ const footer = () => `
         <a href="mailto:${site.email}">${site.email}</a>
         ${whatsappAction('footer-whatsapp')}
       </div>
-      <nav aria-label="Footer explore">
+      <nav class="footer-nav footer-explore" aria-label="Footer explore">
         <p class="footer-label">Explore</p>
         <a href="/work/">Projects</a><a href="/services/">Services</a><a href="/industries/">Industries</a><a href="/how-it-works/">How it works</a><a href="/pricing/">Pricing</a><a href="/about/">About</a><a href="/contact/">Contact</a>
       </nav>
-      <nav aria-label="Footer capabilities">
+      <nav class="footer-nav footer-capabilities" aria-label="Footer capabilities">
         <p class="footer-label">Capabilities</p>
         <a href="/services/digital-strategy/">Digital strategy</a><a href="/services/website-design/">Website design</a><a href="/services/ecommerce/">E-commerce</a><a href="/services/local-seo/">SEO & search</a><a href="/services/landing-pages-lead-generation/">Lead generation</a><a href="/services/hosting-support/">Ongoing support</a>
       </nav>
-      <nav aria-label="Footer industries">
+      <nav class="footer-nav footer-industries" aria-label="Footer industries">
         <p class="footer-label">Industries</p>
         <a href="/websites-for-plumbers/">Websites for plumbers</a><a href="/websites-for-electricians/">Websites for electricians</a><a href="/websites-for-builders/">Websites for builders</a><a href="/websites-for-service-businesses/">Service business websites</a><a href="/industries/">View all industries</a>
       </nav>
@@ -443,9 +443,9 @@ export const layout = ({
   <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
   ${preloadAssets.map((asset) => `<link rel="preload" href="${asset.href}" as="image"${asset.type ? ` type="${asset.type}"` : ''}${asset.media ? ` media="${asset.media}"` : ''}>`).join('\n  ')}
-  <link rel="stylesheet" href="/assets/styles.css?v=20260717b">
+  <link rel="stylesheet" href="/assets/styles.css?v=20260718a">
   ${schemas.map((item) => `<script type="application/ld+json">${JSON.stringify(item)}</script>`).join('\n  ')}
-  <script src="/assets/site.js?v=20260717b" defer></script>
+  <script src="/assets/site.js?v=20260718a" defer></script>
 </head>
 <body class="intro-pending ${bodyClass}">
   ${pageLoader()}

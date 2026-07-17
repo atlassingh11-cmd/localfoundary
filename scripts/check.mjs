@@ -187,6 +187,7 @@ if (!css.includes('prefers-reduced-motion')) errors.push('styles.css: missing re
 if (!css.includes('@media print') || !css.includes('.js .project-screenshot .desktop-device')) errors.push('styles.css: missing print fallback for reveal images');
 if (!css.includes('.footer-label') || /footer-grid h3/.test(css)) errors.push('styles.css: footer labels must remain UI text rather than inconsistent H3 headings');
 if (!/\.footer-base a\s*\{[^}]*min-height:\s*44px/.test(css)) errors.push('styles.css: footer legal links must retain 44px touch targets');
+if (!css.includes('.footer-industries') || !css.includes('grid-template-columns:repeat(2,minmax(0,1fr))')) errors.push('styles.css: mobile footer must retain its compact two-column layout');
 if (!css.includes('.principle-grid') || !css.includes('.statement-grid')) errors.push('styles.css: missing shared card and split-section alignment system');
 if ((industriesHtml.match(/class="industry-campaign-links"/g) || []).length) errors.push('industries/index.html: targeted campaign links should live outside unequal industry cards');
 const processHtml = await readFile(path.join(dist, 'how-it-works', 'index.html'), 'utf8');
@@ -203,7 +204,7 @@ if (contactHtml.includes(' novalidate') || contactHtml.includes('autocomplete="o
 if (pricingHtml.includes('pricing-badge-placeholder">Recommended starting point')) errors.push('pricing/index.html: hidden recommendation badge must be empty');
 const homeHtml = await readFile(path.join(dist, 'index.html'), 'utf8');
 if (!homeHtml.includes('class="hero-system-track"')) errors.push('index.html: mobile hero sticky runway wrapper is missing');
-if (!homeHtml.includes('styles.css?v=20260717b') || !homeHtml.includes('site.js?v=20260717b')) errors.push('index.html: release asset version must be 20260717b');
+if (!homeHtml.includes('styles.css?v=20260718a') || !homeHtml.includes('site.js?v=20260718a')) errors.push('index.html: release asset version must be 20260718a');
 if (/system-label[^>]*aria-live/.test(homeHtml)) errors.push('index.html: scroll-linked hero label must not be a live region');
 for (const asset of ['fonts/manrope-latin.woff2', 'fonts/space-grotesk-latin.woff2', 'work/iffy-khan/site-desktop-800.webp', 'work/ste-hamilton-fitness/site-desktop-800.webp', 'work/pat-barrett/site-desktop-800.webp']) {
   try { await access(path.join(dist, 'assets', asset)); } catch { errors.push(`dist/assets/${asset}: required optimised asset is missing`); }
